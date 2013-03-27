@@ -3,9 +3,13 @@ package xpug.kata.birthday_greetings;
 import static java.util.Arrays.asList;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -17,38 +21,57 @@ import javax.mail.internet.MimeMessage;
 
 public class BirthdayService {
 
-	public void sendGreetings(String fileName, OurDate ourDate, String smtpHost, int smtpPort) throws IOException, ParseException, AddressException, MessagingException {
-		BufferedReader in = new BufferedReader(new FileReader(fileName));
-		String str = "";
-		str = in.readLine(); // skip header
-		while ((str = in.readLine()) != null) {
-			String[] employeeData = str.split(", ");
-			Employee employee = new Employee(employeeData[1], employeeData[0], employeeData[2], employeeData[3]);
-			if (employee.isBirthday(ourDate)) {
-				String recipient = employee.getEmail();
-				String body = "Happy Birthday, dear %NAME%!".replace("%NAME%", employee.getFirstName());
-				String subject = "Happy Birthday!";
-				sendMessage(smtpHost, smtpPort, "sender@here.com", subject, body, recipient);
-			}
-		}
-	}
+	public static final class FlatFileEmployeeRepository implements EmployeeRepository {
+        private final String fileName;
 
-	private void sendMessage(String smtpHost, int smtpPort, String sender, String subject, String body, String recipient) throws AddressException, MessagingException {
-		// Create a mail session
-		java.util.Properties props = new java.util.Properties();
-		props.put("mail.smtp.host", smtpHost);
-		props.put("mail.smtp.port", "" + smtpPort);
-		Session session = Session.getDefaultInstance(props, null);
+        public FlatFileEmployeeRepository(String fileName) {
+            this.fileName = fileName;
+        }
 
-		// Construct the message
-		Message msg = new MimeMessage(session);
-		msg.setFrom(new InternetAddress(sender));
-		msg.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
-		msg.setSubject(subject);
-		msg.setText(body);
+        @Override
+        public List<Employee> getEmployeesWhosBirthdayIs(OurDate ourDate) throws IOException, ParseException {
+            List<Employee> employees = new ArrayList<Employee>();
+            BufferedReader in = new BufferedReader(new FileReader(fileName));
+            String str = "";
+            str = in.readLine(); // skip header
+            while ((str = in.readLine()) != null) {
+                String[] employeeData = str.split(", ");
+                Employee employee = new Employee(employeeData[1], employeeData[0], employeeData[2], employeeData[3]);
+                if (employee.isBirthday(ourDate)) {
+                    employees.add(employee);
+                }
+            }
+            return employees;
+        }
+    }
 
-		// Send the message
-		sendMessage(msg);
+    public void sendGreetings(final String fileName, OurDate ourDate, String smtpHost, int smtpPort) throws IOException, ParseException, AddressException, MessagingException {
+	    EmployeeRepository repository = new FlatFileEmployeeRepository(fileName) ;
+	    List<Employee> employees = repository.getEmployeesWhosBirthdayIs(ourDate);
+	    for (Employee employee : employees) {
+	        // Create a mail session
+            java.util.Properties props = new java.util.Properties();
+            props.put("mail.smtp.host", smtpHost);
+            props.put("mail.smtp.port", "" + smtpPort);
+            Session session = Session.getDefaultInstance(props, null);
+            
+            
+            Greeting greeting = new Greeting(employee);
+            String recipient = employee.getEmail();
+
+            String subject = "Happy Birthday!";
+            String body = "Happy Birthday, dear %NAME%!".replace("%NAME%", employee.getFirstName());
+            String from = "sender@here.com";
+            // Construct the message
+            Message msg = new MimeMessage(session);
+            msg.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+            msg.setSubject(subject);
+            msg.setText(body);
+            msg.setFrom(new InternetAddress(from));
+            
+            // Send the message
+            sendMessage(msg);
+        }
 	}
 
 	// made protected for testing :-(
