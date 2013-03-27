@@ -1,4 +1,4 @@
-package xpug.kata.birthday_greetings;
+package xpug.kata.birthday_greetings.adapters;
 
 import javax.mail.Message;
 import javax.mail.Message.RecipientType;
@@ -9,15 +9,21 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class GreetingSender {
+import xpug.kata.birthday_greetings.application.ApplicationException;
+import xpug.kata.birthday_greetings.application.Greeting;
+import xpug.kata.birthday_greetings.application.GreetingSender;
+
+
+public class JavaxMailGreetingSender implements GreetingSender {
 
     private Session session;
 
-    public GreetingSender(Session session) {
+    public JavaxMailGreetingSender(Session session) {
         this.session = session;
     }
 
-    void send(Greeting greeting) throws ApplicationException {
+    @Override
+    public void send(Greeting greeting) throws ApplicationException {
         Message msg = new MimeMessage(session);
         try {
             msg.setRecipient(RecipientType.TO, new InternetAddress(greeting.getRecepientsEmail()));

@@ -1,6 +1,11 @@
-package xpug.kata.birthday_greetings;
+package xpug.kata.birthday_greetings.main;
 
 import javax.mail.Session;
+
+import xpug.kata.birthday_greetings.adapters.FlatFileEmployeeRepository;
+import xpug.kata.birthday_greetings.adapters.JavaxMailGreetingSender;
+import xpug.kata.birthday_greetings.application.BirthdayService;
+import xpug.kata.birthday_greetings.application.OurDate;
 
 public class Main {
 
@@ -12,7 +17,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
-    	BirthdayService service = new BirthdayService(new GreetingSender(getSession("localhost", 25)), new FlatFileEmployeeRepository("employee_data.txt"));
+    	BirthdayService service = new BirthdayService(new JavaxMailGreetingSender(getSession("localhost", 25)), new FlatFileEmployeeRepository("employee_data.txt"));
     	try {
     		service.sendGreetings("employee_data.txt", new OurDate("2008/10/08"));
     	} catch (Exception e) {

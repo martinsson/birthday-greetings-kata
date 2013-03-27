@@ -1,6 +1,7 @@
-package xpug.kata.birthday_greetings;
+package xpug.kata.birthday_greetings.application;
 
 import java.util.List;
+
 
 public class BirthdayService {
 

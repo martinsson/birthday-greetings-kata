@@ -1,4 +1,4 @@
-package xpug.kata.birthday_greetings;
+package xpug.kata.birthday_greetings.main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,12 @@ import javax.mail.MessagingException;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import xpug.kata.birthday_greetings.adapters.FlatFileEmployeeRepository;
+import xpug.kata.birthday_greetings.adapters.JavaxMailGreetingSender;
+import xpug.kata.birthday_greetings.application.BirthdayService;
+import xpug.kata.birthday_greetings.application.GreetingSender;
+import xpug.kata.birthday_greetings.application.OurDate;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +27,7 @@ public class AcceptanceTest {
 	public void setUp() throws Exception {
 		messagesSent = new ArrayList<Message>();
 
-		GreetingSender greetingSender = new GreetingSender(Main.getSession("localhost", 25)) {
+		GreetingSender greetingSender = new JavaxMailGreetingSender(Main.getSession("localhost", 25)) {
 		    @Override
 		    protected void sendMessage(Message msg) throws MessagingException {
 		        messagesSent.add(msg);

@@ -1,4 +1,4 @@
-package xpug.kata.birthday_greetings;
+package xpug.kata.birthday_greetings.application;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
