@@ -21,8 +21,8 @@ public class BirthdayService {
         employeeRepository = repository;
     }
     
-	public void sendGreetings(OurDate ourDate, String smtpHost, int smtpPort) throws IOException, ParseException, AddressException, MessagingException {
-        List<Employee> employees = employeeRepository.findEmployeesWhosBirthdayIs(ourDate);
+	public void sendGreetings(OurDate today, String smtpHost, int smtpPort) throws IOException, ParseException, AddressException, MessagingException {
+        List<Employee> employees = employeeRepository.findEmployeesWhosBirthdayIs(today);
 		for (Employee employee : employees) {
 		    String recipient = employee.getEmail();
             String body = "Happy Birthday, dear %NAME%!".replace("%NAME%", employee.getFirstName());
@@ -52,14 +52,5 @@ public class BirthdayService {
 	// made protected for testing :-(
 	protected void sendMessage(Message msg) throws MessagingException {
 		Transport.send(msg);
-	}
-
-	public static void main(String[] args) {
-		BirthdayService service = new BirthdayService(new FlatFileEmployeeRepository("employee_data.txt"));
-		try {
-			service.sendGreetings(new OurDate("2008/10/08"), "localhost", 25);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }
