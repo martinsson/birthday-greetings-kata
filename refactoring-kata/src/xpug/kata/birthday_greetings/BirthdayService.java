@@ -28,22 +28,26 @@ public class BirthdayService {
         }
 	}
 
-    private List<Employee> getEmployeesWhosBirthdayIs(String fileName, OurDate ourDate) throws FileNotFoundException, IOException, ParseException {
-        
-        
-        BufferedReader in = new BufferedReader(new FileReader(fileName));
-		String str = "";
-		str = in.readLine(); // skip header
-		List<Employee> employees = new ArrayList<Employee>();
-		
-		while ((str = in.readLine()) != null) {
-			String[] employeeData = str.split(", ");
-			Employee employee = new Employee(employeeData[1], employeeData[0], employeeData[2], employeeData[3]);
-			if (employee.isBirthday(ourDate)) {
-				employees.add(employee);
-			}
-		}
-        return employees;
+    private List<Employee> getEmployeesWhosBirthdayIs(final String fileName, OurDate ourDate) throws FileNotFoundException, IOException, ParseException {
+        return new EmployeeRepository() {
+            
+            @Override
+            public List<Employee> findEmployeesWhosBirthdayIs(OurDate ourDate) throws FileNotFoundException, IOException, ParseException {
+                BufferedReader in = new BufferedReader(new FileReader(fileName));
+                String str = "";
+                str = in.readLine(); // skip header
+                List<Employee> employees = new ArrayList<Employee>();
+                
+                while ((str = in.readLine()) != null) {
+                    String[] employeeData = str.split(", ");
+                    Employee employee = new Employee(employeeData[1], employeeData[0], employeeData[2], employeeData[3]);
+                    if (employee.isBirthday(ourDate)) {
+                        employees.add(employee);
+                    }
+                }
+                return employees;
+            }
+        }.findEmployeesWhosBirthdayIs(ourDate);
     }
 
 	private void sendMessage(String smtpHost, int smtpPort, String sender, String subject, String body, String recipient) throws AddressException, MessagingException {
