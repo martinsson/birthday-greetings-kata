@@ -1,11 +1,7 @@
 package xpug.kata.birthday_greetings;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.Message;
@@ -16,10 +12,11 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+
 public class BirthdayService {
 
 	public void sendGreetings(String fileName, OurDate ourDate, String smtpHost, int smtpPort) throws IOException, ParseException, AddressException, MessagingException {
-		List<Employee> employees = getEmployeesWhosBirthdayIs(fileName, ourDate);
+		List<Employee> employees = new FlatFileEmployeeRepository(fileName).findEmployeesWhosBirthdayIs(ourDate);
 		for (Employee employee : employees) {
 		    String recipient = employee.getEmail();
             String body = "Happy Birthday, dear %NAME%!".replace("%NAME%", employee.getFirstName());
@@ -28,29 +25,7 @@ public class BirthdayService {
         }
 	}
 
-    private List<Employee> getEmployeesWhosBirthdayIs(final String fileName, OurDate ourDate) throws FileNotFoundException, IOException, ParseException {
-        return new EmployeeRepository() {
-            
-            @Override
-            public List<Employee> findEmployeesWhosBirthdayIs(OurDate ourDate) throws FileNotFoundException, IOException, ParseException {
-                BufferedReader in = new BufferedReader(new FileReader(fileName));
-                String str = "";
-                str = in.readLine(); // skip header
-                List<Employee> employees = new ArrayList<Employee>();
-                
-                while ((str = in.readLine()) != null) {
-                    String[] employeeData = str.split(", ");
-                    Employee employee = new Employee(employeeData[1], employeeData[0], employeeData[2], employeeData[3]);
-                    if (employee.isBirthday(ourDate)) {
-                        employees.add(employee);
-                    }
-                }
-                return employees;
-            }
-        }.findEmployeesWhosBirthdayIs(ourDate);
-    }
-
-	private void sendMessage(String smtpHost, int smtpPort, String sender, String subject, String body, String recipient) throws AddressException, MessagingException {
+    private void sendMessage(String smtpHost, int smtpPort, String sender, String subject, String body, String recipient) throws AddressException, MessagingException {
 		// Create a mail session
 		java.util.Properties props = new java.util.Properties();
 		props.put("mail.smtp.host", smtpHost);
