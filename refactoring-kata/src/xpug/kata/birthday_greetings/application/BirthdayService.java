@@ -13,7 +13,7 @@ public class BirthdayService {
         this.repository = repository;
 	}
 	
-    public void sendGreetings(final String fileName, OurDate ourDate) throws ApplicationException {
+    public void sendGreetings(OurDate ourDate) throws ApplicationException {
 	    List<Employee> employees = repository.getEmployeesWhosBirthdayIs(ourDate);
 	    for (Employee employee : employees) {
 	        Greeting greeting = new Greeting(employee);

@@ -19,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
     	BirthdayService service = new BirthdayService(new JavaxMailGreetingSender(getSession("localhost", 25)), new FlatFileEmployeeRepository("employee_data.txt"));
     	try {
-    		service.sendGreetings("employee_data.txt", new OurDate("2008/10/08"));
+    		service.sendGreetings(new OurDate("2008/10/08"));
     	} catch (Exception e) {
     		e.printStackTrace();
     	}
